@@ -43,7 +43,7 @@ def get_start_and_end(position_file):
     with open(position_file) as o_track:
 
         for line in o_track:
-
+            print(line)
             if not line.startswith('Position X') and not dataStart:
                 continue
             elif line.startswith('Position X') and not dataStart:
@@ -304,7 +304,7 @@ def missing_links(link_list):
 
 def get_children(start_dic, end_dic, pos_dic):
 
-    """ find the children of cell base on the start and end positions of all cells
+    """ find the children of a cell base on the start and end positions of all cells
     
     Returns:
         list -- list of tuples linking one cell to another.
@@ -399,6 +399,7 @@ def make_family_dic(big_list):
     return family_dic
 
 
+
 def get_times(time, interval):
 
     mins = (time-1)*interval
@@ -474,7 +475,7 @@ def cycle_files(experiment_path, family_dic, time_interval):
     d1 = today.strftime("%Y-%m-%d")
 
     outdir = os.path.join(experiment_path, os.path.split(experiment_path)[1]+f'_output_data')
-
+    print(outdir)
     if not os.path.isdir(outdir):
         os.makedirs(outdir)
 
@@ -584,6 +585,9 @@ def add_positions_to_output(pos_dic, outfile_path, time_interval):
 def output_start_and_ends_file_for_plotting(se_dic, family_dic, position, experiment_path):
     
     outdir = os.path.join(experiment_path, os.path.split(experiment_path)[1]+f'_output_data')
+    if not os.path.isdir(outdir):
+        os.makedirs(outdir)
+
     outfile = open(os.path.join(outdir, "testPositions.tsv"),'w')
     outfile.write("cell\ttime\tfamily\tx\ty\tz\n")
     # pprint(family_dic)
