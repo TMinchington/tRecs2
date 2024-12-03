@@ -3,6 +3,8 @@
 Working space to test new functions
 
 """
+
+
 from random import randint
 from pprint import pprint
 import seaborn as sn
@@ -226,6 +228,35 @@ def assign_daughters(cell_dic, se_dic, co=50):
 
         trim_net(cell1, cell2, dis, se_dic, co)
 
+
+def make_lineage(se_dic, link_list):
+
+    big_list = []
+
+    lineage_dic = {}
+
+    x0 = []
+    x1 = []
+
+    for x in link_list:
+        x0.append(x[0])
+        x1.append(x[1])
+
+    line_starters = list(set([x for x in x0 if not x in x1]))
+    line_enders = list(set([x for x in x1 if not x in x0]))
+
+    for end in line_enders:
+        # print('>>>', end)
+     
+        big_list.append(recursive_lineage(end, link_list, []))
+
+       
+
+    for x in big_list:
+        if x[-1] not in line_starters:
+            exit(f'unknown start {x[-1]}')
+
+    return big_list
 
 
 
