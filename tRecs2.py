@@ -278,51 +278,6 @@ def build_link_dic(link_ls):
     return link_dic
 
 
-def get_children(start_dic, end_dic, pos_dic):
-
-    """ find the children of a cell base on the start and end positions of all cells
-    
-    Returns:
-        list -- list of tuples linking one cell to another.
-    """
-
-    # pos_dic = 'temp'
-    link_list = []
-
-    for end in end_dic:
-
-        if end+1 in start_dic:
-            
-            link_list += select_children(end_dic[end], start_dic[end+1], pos_dic, end)
-
-        else:
-            continue
-            # print(end, 'end')
-
-    return missing_links(link_list)
-
-
-def select_children(enders, starters, pos_dic, end):
-    links = []
-    if len(enders) > 1:
-        
-        links += optimise_smallest_distance(enders[:], starters[:], end, pos_dic)
-
-    elif len(starters) > 2:
-
-        links += optimise_smallest_distance(enders[:], starters[:], end, pos_dic)
-        
-    else:
-
-        for startCell in starters:
-
-            links += optimise_smallest_distance(enders[:], starters[:], end, pos_dic)
-
-    return links
-
-
-
-
 @jit
 def fast_distance(x1, y1, z1, x2, y2, z2):
     return ((x1-x2)**2 + (y1-y2)**2 + (z1-z2)**2)**0.5
@@ -349,7 +304,7 @@ def get_step_cutoff(pos_dic, end_time):
             distances.append(fast_dis)
 
 
-    cut_off = mean(distances) * 4 # seems to work in most cases
+    cut_off = mean(distances) * 10 # This is increased to prevent rejections was originally 4
     # print("mean dis: ", mean(distances))
     # print("cut off: ", cut_off)
     return cut_off
