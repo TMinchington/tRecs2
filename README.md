@@ -1,4 +1,4 @@
-# tRecs Requirements and set up
+# tRecs2 Requirements and set up
 
 1. Download python3 and install
 
@@ -35,7 +35,7 @@ Cells should be tracked from division to division. Daughter cell tracks should s
 tRecs will then join the mothers to daughters. It will also give 
 
 
-usage: tRecs.py [-h] [--time TIME] experiment_path
+usage: tRecs2.py [-h] [--time TIME] experiment_path
 
 positional arguments:
   experiment_path       The location of the folder which contains all of the
