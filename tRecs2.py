@@ -289,9 +289,11 @@ def get_step_cutoff(pos_dic, end_time):
     Calcuate how far cell travel on average in the last 10 frames
     """
     end_time = int(end_time)
+    # print(end_time)
     distances = []
-    for timeEnd in range(end_time-10, end_time-1): 
-        # pprint(pos_dic[timeEnd])
+
+    for timeEnd in range(max(end_time-10, 1), end_time-1): # defaults to zero on short tracks 
+
         for cell in pos_dic[timeEnd]:
             try:
                 x2, y2, z2 = pos_dic[timeEnd+1][cell]
