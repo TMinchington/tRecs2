@@ -32,7 +32,12 @@ The experiment path should contain all output data from imaris for a given exper
 
 Cells should be tracked from division to division. Daughter cell tracks should start in the next frame.
 
-tRecs will then join the mothers to daughters. It will also give 
+tRecs will then join the mothers to daughters. It will also give you a pdf report showing general statistics about the data, this is useful for QC.
+
+A log file is also updated on each run in the same folder displaying:
+path, file, date, timeInterval, numberOfCells, meanTrackLength and maxNumberOfGenerations
+
+Note: as of the most recent version in edge cases where 3 daughters are too close to a mother cell with no other mother cells present all 3 cells will be labelled with that mother with the prefix of 'maybe:' to the ID. These tracks should be manually checked. A warning will be generated at the end of the run if this is the case.
 
 
 usage: tRecs2.py [-h] [--time TIME] experiment_path

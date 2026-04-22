@@ -320,12 +320,67 @@ def get_distance(end_cell, start_cell, pos_dic, times):
 
     return fast_distance(x1, y1, z1, x2, y2, z2)
 
+def assign_only_closest_daughters(endCell, start_cells, pos_dic, cutoff, enTime, stTime, se_dic):
+    
+    dis_dic = {}
+    group_dic = {}
+    
+    x1, y1, z1 = pos_dic[enTime][endCell]
 
-def here_there_be_monsters2(start_cells, end_cells, pos_dic, cutoff, enTime, stTime):
+
+    distances = []
+    track_lengths = {} # I added this a potential extra information piece to resolve disputes, but is contenscious 
+    for startCell in start_cells:
+        x2, y2, z2 = pos_dic[stTime][startCell]
+        dis = fast_distance(x1, y1, z1, x2, y2, z2)
+        distances.append((dis, startCell))
+        track_lengths[startCell] = se_dic[startCell][1] - se_dic[startCell][0]
+
+    distances.sort()
+    # print(distances)
+    # pprint(track_lengths)
+    # exit()
+
+    for n, dis in enumerate(distances):
+        if n < 2 and dis[0] < cutoff:
+            try:
+                group_dic[endCell].append(dis[1])
+            
+            except KeyError:
+                group_dic[endCell] = [dis[1]]
+
+        else:
+            try:
+                group_dic["None"].append(dis[1])
+            
+            except KeyError:
+                group_dic["None"] = [dis[1]]
+
+
+    return group_dic
+
+def label_maybe(end_cell, start_cells):
+    group_dic = {}
+    group_dic[f"maybe:{end_cell}"] = start_cells
+    return group_dic
+
+
+def here_there_be_monsters2(start_cells, end_cells, pos_dic, cutoff, enTime, stTime, se_dic):
     net_dic = {}
     group_dic = {}
-    matched_dic = {}
-    un_matched_dic = {}
+    # matched_dic = {}
+    # un_matched_dic = {}
+    # print(end_cells)
+    # print(start_cells)
+
+    # add exception for mothers matched with 3 cells instead of two incases where daughters outnumber potential mothers.
+
+    if len(end_cells) == 1 and len(start_cells) > 2:
+        close_cells = [s for s in start_cells if fast_distance(*pos_dic[enTime][end_cells[0]], *pos_dic[stTime][s]) < cutoff]
+        if len(close_cells) > 2:
+            return label_maybe(end_cells[0], close_cells)
+        else:
+            return assign_only_closest_daughters(end_cells[0], close_cells, pos_dic, cutoff, enTime, stTime, se_dic)
 
     for endCell in end_cells:
         x1, y1, z1 = pos_dic[enTime][endCell]
@@ -344,7 +399,7 @@ def here_there_be_monsters2(start_cells, end_cells, pos_dic, cutoff, enTime, stT
                 
                 except KeyError:
                     net_dic[startCell] = (dis, endCell)
-
+    # print("netdic:", pprint(net_dic))
     for daughter in net_dic:
         try:
             group_dic[net_dic[daughter][1]].append(daughter)
@@ -370,6 +425,7 @@ def here_there_be_monsters2(start_cells, end_cells, pos_dic, cutoff, enTime, stT
     daughter_count = {}
     # print("GD", group_dic)
     # print(spinsters)
+
     for mother in group_dic:
         for daughter in group_dic[mother]:
             try:
@@ -388,7 +444,9 @@ def here_there_be_monsters2(start_cells, end_cells, pos_dic, cutoff, enTime, stT
             elif daughter_count[daughter] > 1:
                 orphans.append(daughter)
                 kidnappers.append(mother)
-
+    # print("kidnappers",kidnappers) 
+    # print("spinsters",spinsters)
+    # print("orphans",orphans)
     if len(kidnappers) != 0:
         for childSnatcher in kidnappers:
             spinsters.append(childSnatcher)
@@ -481,7 +539,7 @@ def try_closest_distance(orphans, spinsters, pos_dic, enTime, stTime, cutoff):
 
 
 
-def assign_daughters(start_dic, end_dic, pos_dic):
+def assign_daughters(start_dic, end_dic, pos_dic, se_dic):
 
     """
     Takes start_dic, end_dic and pos_dic
@@ -536,7 +594,7 @@ def assign_daughters(start_dic, end_dic, pos_dic):
             # print(start_dic[stTime])
             # print(end_dic[enTime])
 
-            matched_pairs = here_there_be_monsters2(start_dic[stTime], end_dic[enTime], pos_dic, cut_off, enTime, stTime)
+            matched_pairs = here_there_be_monsters2(start_dic[stTime], end_dic[enTime], pos_dic, cut_off, enTime, stTime, se_dic)
 
             for endCell in matched_pairs:
                 for startCell in matched_pairs[endCell]:
@@ -820,7 +878,7 @@ def run_all(position_file, time_interval, experiment_path):
   
     start_dic, end_dic = make_start_and_ends_dics(se_dic)
     numberOfCells = len(set(list(se_dic)))
-    links_ls = assign_daughters(start_dic, end_dic, pos_dic)
+    links_ls = assign_daughters(start_dic, end_dic, pos_dic, se_dic)
     
     big_list = make_lineage(se_dic, links_ls)
 
