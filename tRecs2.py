@@ -645,7 +645,7 @@ def output_start_and_ends_file_for_plotting2(se_dic, family_dic, pos_dic, experi
         outfile.write(f"{key}\t{end}\t{family}\t{x}\t{y}\t{z}\n")
 
 def cycle_files(experiment_path, family_dic, time_interval):
-
+    maybies = []
     today = datetime.date.today()
     d1 = today.strftime("%Y-%m-%d")
 
@@ -712,6 +712,9 @@ def cycle_files(experiment_path, family_dic, time_interval):
 
                 mins, hours, days = get_times(float(Time), time_interval)
 
+                if 'maybe:' in family:
+                    maybies.append(family)
+
                 for full_track in set(full_track_ls):
                     outls1 = []
                     for x in head_ls:
@@ -733,7 +736,7 @@ def cycle_files(experiment_path, family_dic, time_interval):
 
     outfile.close()
     famNumber = len(list(set(fam_ls)))
-    return outfile_path, generation_list, famNumber
+    return outfile_path, generation_list, famNumber, set(maybies)
 
 def get_mean_track_length(se_dic):
     length_ls = []
@@ -885,13 +888,13 @@ def run_all(position_file, time_interval, experiment_path):
     family_dic = make_family_dic(big_list)
 
     output_start_and_ends_file_for_plotting2(se_dic, family_dic, pos_dic, args.experiment_path)
-    outfile_path, generations_list, famNumber = cycle_files(experiment_path, family_dic, time_interval)
+    outfile_path, generations_list, famNumber, maybies = cycle_files(experiment_path, family_dic, time_interval)
     add_positions_to_output(pos_dic, outfile_path, args.time, family_dic)
 
     dataBits = (generations_list, numberOfCells, get_mean_track_length(se_dic), famNumber)
     generate_summary_data(outfile_path, start_dic, args, dataBits)
 
-    return generations_list, numberOfCells, get_mean_track_length(se_dic), famNumber
+    return generations_list, numberOfCells, get_mean_track_length(se_dic), famNumber, maybies
 
 
 def add_positions_to_output(pos_dic, outfile_path, time_interval, family_dic):
@@ -990,11 +993,18 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     position_file = os.path.join(args.experiment_path, [x for x in os.listdir(args.experiment_path) if 'Position' in x and 'Track' not in x][0])
-    generations_list, numberOfCells, mean_track_length, famNumber = run_all(position_file, args.time, args.experiment_path)
+    generations_list, numberOfCells, mean_track_length, famNumber, mabies = run_all(position_file, args.time, args.experiment_path)
 
     open_log(args, position_file, generations_list, numberOfCells, mean_track_length, famNumber)
   
     trecsNew()
+
+    if mabies:
+        print("\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\nWARNING MAYBE BABIES DETECTED:\n")
+        for x in mabies:
+            print(x)
+
+        print("\n\n")
 
 
 
